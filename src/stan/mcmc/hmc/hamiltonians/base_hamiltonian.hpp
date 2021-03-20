@@ -53,7 +53,7 @@ class base_hamiltonian {
     try {
       z.V = -stan::model::log_prob_propto<true>(model_, z.q);
     } catch (const std::exception& e) {
-      this->write_error_msg_(e, logger);
+      this->write_error_msg_(e, logger, "update_potential");
       z.V = std::numeric_limits<double>::infinity();
     }
   }
@@ -63,7 +63,7 @@ class base_hamiltonian {
       stan::model::gradient(model_, z.q, z.V, z.g, logger);
       z.V = -z.V;
     } catch (const std::exception& e) {
-      this->write_error_msg_(e, logger);
+      this->write_error_msg_(e, logger, "update_potential_gradient");
       z.V = std::numeric_limits<double>::infinity();
     }
     z.g = -z.g;
@@ -80,18 +80,14 @@ class base_hamiltonian {
  protected:
   const Model& model_;
 
-  void write_error_msg_(const std::exception& e, callbacks::logger& logger) {
-    logger.error(
-        "Informational Message: The current Metropolis proposal "
-        "is about to be rejected because of the following issue:");
+  void write_error_msg_(const std::exception& e, callbacks::logger& logger,
+       std::string function_name) {
+    logger.error("Current Metropolis proposal is about to be rejected ");
+    logger.error("due to the following issue (in '" + function_name + "'): ");
     logger.error(e.what());
     logger.error(
-        "If this warning occurs sporadically, such as for highly "
-        "constrained variable types like covariance matrices, "
-        "then the sampler is fine,");
-    logger.error(
-        "but if this warning occurs often then your model may be "
-        "either severely ill-conditioned or misspecified.");
+      "If this occurs often your model may be "
+      "ill-conditioned or misspecified.");
     logger.error("");
   }
 };
