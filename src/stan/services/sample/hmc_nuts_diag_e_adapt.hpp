@@ -337,6 +337,7 @@ int hmc_nuts_diag_e_adapt(
     std::vector<InitWriter>& init_writer,
     std::vector<SampleWriter>& sample_writer,
     std::vector<DiagnosticWriter>& diagnostic_writer) {
+  logger.info("Called hmc_nuts_diag_e_adapt.");
   if (num_chains == 1) {
     return hmc_nuts_diag_e_adapt(
         model, *init[0], random_seed, init_chain_id, init_radius, num_warmup,
