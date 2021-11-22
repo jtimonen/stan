@@ -51,7 +51,10 @@ void run_adaptive_sampler(Sampler& sampler, Model& model,
   Eigen::Map<Eigen::VectorXd> cont_params(cont_vector.data(),
                                           cont_vector.size());
 
+  logger.info("Running adaptive sampler. Engaging adaptation.");
   sampler.engage_adaptation();
+
+  logger.info("Trying to initialize stepsize.");
   try {
     sampler.z().q = cont_params;
     sampler.init_stepsize(logger);
@@ -61,6 +64,7 @@ void run_adaptive_sampler(Sampler& sampler, Model& model,
     return;
   }
 
+  logger.info("Writing headers.");
   services::util::mcmc_writer writer(sample_writer, diagnostic_writer, logger);
   stan::mcmc::sample s(cont_params, 0, 0);
 
@@ -68,6 +72,7 @@ void run_adaptive_sampler(Sampler& sampler, Model& model,
   writer.write_sample_names(s, sampler, model);
   writer.write_diagnostic_names(s, sampler, model);
 
+  logger.info("Starting the clock for sampling.");
   auto start_warm = std::chrono::steady_clock::now();
   util::generate_transitions(sampler, num_warmup, 0, num_warmup + num_samples,
                              num_thin, refresh, save_warmup, true, writer, s,
