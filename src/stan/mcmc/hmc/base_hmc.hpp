@@ -109,9 +109,9 @@ class base_hmc : public base_mcmc {
     int direction = delta_H > std::log(0.8) ? 1 : -1;
     std::stringstream msg;
     msg << "    delta_H = " << delta_H << ", direction = " << direction << "\n";
-    logger.info(msg);
+    logger.info(msg.str());
 
-    logger.info(" - init_stepsize: starting while loop.");
+    logger.info(" - init_stepsize: --------------- starting while loop ----------------");
     while (1) {
       this->z_.ps_point::operator=(z_init);
 
@@ -132,8 +132,9 @@ class base_hmc : public base_mcmc {
         h = std::numeric_limits<double>::infinity();
 
       double delta_H = H0 - h;
+      std::stringstream msg;
       msg << "    delta_H = " << delta_H << ", direction = " << direction << "\n";
-      logger.info(msg);
+      logger.info(msg.str());
 
       if ((direction == 1) && !(delta_H > std::log(0.8)))
         break;
