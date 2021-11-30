@@ -69,6 +69,7 @@ int hmc_nuts_diag_e_adapt(
     unsigned int window, callbacks::interrupt& interrupt,
     callbacks::logger& logger, callbacks::writer& init_writer,
     callbacks::writer& sample_writer, callbacks::writer& diagnostic_writer) {
+  std::cout << "STAN(hmc_nuts_diag_e_adapt.hpp): called FIRST hmc_nuts_diag_e_adapt()" << "\n";
   boost::ecuyer1988 rng = util::create_rng(random_seed, chain);
 
   std::vector<double> cont_vector = util::initialize(
@@ -149,6 +150,7 @@ int hmc_nuts_diag_e_adapt(
     callbacks::writer& sample_writer, callbacks::writer& diagnostic_writer) {
   stan::io::dump unit_e_metric
       = util::create_unit_e_diag_inv_metric(model.num_params_r());
+  std::cout << "STAN(hmc_nuts_diag_e_adapt.hpp): called SECOND hmc_nuts_diag_e_adapt()" << "\n";
   return hmc_nuts_diag_e_adapt(
       model, init, unit_e_metric, random_seed, chain, init_radius, num_warmup,
       num_samples, num_thin, save_warmup, refresh, stepsize, stepsize_jitter,
@@ -220,6 +222,7 @@ int hmc_nuts_diag_e_adapt(
     std::vector<InitWriter>& init_writer,
     std::vector<SampleWriter>& sample_writer,
     std::vector<DiagnosticWriter>& diagnostic_writer) {
+    std::cout << "STAN(hmc_nuts_diag_e_adapt.hpp): called THIRD hmc_nuts_diag_e_adapt()" << "\n";
   if (num_chains == 1) {
     return hmc_nuts_diag_e_adapt(
         model, *init[0], *init_inv_metric[0], random_seed, init_chain_id,
@@ -337,7 +340,7 @@ int hmc_nuts_diag_e_adapt(
     std::vector<InitWriter>& init_writer,
     std::vector<SampleWriter>& sample_writer,
     std::vector<DiagnosticWriter>& diagnostic_writer) {
-  logger.info("Called hmc_nuts_diag_e_adapt.");
+  std::cout << "STAN(hmc_nuts_diag_e_adapt.hpp): called FOURTH hmc_nuts_diag_e_adapt()" << "\n";
   if (num_chains == 1) {
     return hmc_nuts_diag_e_adapt(
         model, *init[0], random_seed, init_chain_id, init_radius, num_warmup,

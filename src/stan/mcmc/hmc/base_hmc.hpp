@@ -79,7 +79,7 @@ class base_hmc : public base_mcmc {
   }
 
   void init_stepsize(callbacks::logger& logger) {
-    logger.info("Called init_stepsize.");
+    std::cout << "STAN(base_hmc.hpp): called init_stepsize()." << "\n";
     ps_point z_init(this->z_);
 
     // Skip initialization for extreme step sizes
@@ -87,54 +87,39 @@ class base_hmc : public base_mcmc {
         || std::isnan(this->nom_epsilon_))
       return;
 
-    logger.info(" - init_stepsize: sample_p for Hamiltonian.");
     this->hamiltonian_.sample_p(this->z_, this->rand_int_);
-    logger.info(" - init_stepsize: init for Hamiltonian.");
     this->hamiltonian_.init(this->z_, logger);
-    logger.info(" - init_stepsize: computing H0.");
+
 
     // Guaranteed to be finite if randomly initialized
     double H0 = this->hamiltonian_.H(this->z_);
-
-    logger.info(" - init_stepsize: evolving integrator.");
     this->integrator_.evolve(this->z_, this->hamiltonian_, this->nom_epsilon_,
                              logger);
 
-    logger.info(" - init_stepsize: computing h.");
     double h = this->hamiltonian_.H(this->z_);
     if (std::isnan(h))
       h = std::numeric_limits<double>::infinity();
 
     double delta_H = H0 - h;
     int direction = delta_H > std::log(0.8) ? 1 : -1;
-    std::stringstream msg;
-    msg << "    delta_H = " << delta_H << ", direction = " << direction << "\n";
-    logger.info(msg.str());
 
-    logger.info(" - init_stepsize: --------------- starting while loop ----------------");
+    //std::cout << "STAN(run_adaptive_sampler.hpp): starting while loop inside init_stepsize()." << "\n";
     while (1) {
       this->z_.ps_point::operator=(z_init);
 
-      logger.info(" - init_stepsize: sample_p for Hamiltonian.");
       this->hamiltonian_.sample_p(this->z_, this->rand_int_);
       this->hamiltonian_.init(this->z_, logger);
 
-      logger.info(" - init_stepsize: computing H0.");
       double H0 = this->hamiltonian_.H(this->z_);
 
-      logger.info(" - init_stepsize: evolving integrator.");
       this->integrator_.evolve(this->z_, this->hamiltonian_, this->nom_epsilon_,
                                logger);
 
-      logger.info(" - init_stepsize: computing h.");
       double h = this->hamiltonian_.H(this->z_);
       if (std::isnan(h))
         h = std::numeric_limits<double>::infinity();
-
       double delta_H = H0 - h;
-      std::stringstream msg;
-      msg << "    delta_H = " << delta_H << ", direction = " << direction << "\n";
-      logger.info(msg.str());
+
 
       if ((direction == 1) && !(delta_H > std::log(0.8)))
         break;
