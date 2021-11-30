@@ -71,6 +71,7 @@ std::vector<double> initialize(Model& model, const InitContext& init, RNG& rng,
                                double init_radius, bool print_timing,
                                stan::callbacks::logger& logger,
                                stan::callbacks::writer& init_writer) {
+  std::cout << "STAN(initialize.hpp): called initialize()" << "\n";
   std::vector<double> unconstrained;
   std::vector<int> disc_vector;
 
@@ -89,6 +90,7 @@ std::vector<double> initialize(Model& model, const InitContext& init, RNG& rng,
       = is_fully_initialized || is_initialized_with_zero ? 1 : 100;
   int num_init_tries = 0;
   for (; num_init_tries < MAX_INIT_TRIES; num_init_tries++) {
+    std::cout << " * try index = " << num_init_tries << "\n";
     std::stringstream msg;
     try {
       stan::io::random_var_context random_context(model, rng, init_radius,
@@ -126,6 +128,7 @@ std::vector<double> initialize(Model& model, const InitContext& init, RNG& rng,
       // we evaluate the log_prob function with propto=false
       // because we're evaluating with `double` as the type of
       // the parameters.
+      std::cout << " * log_prob() evaluation" << "\n";
       log_prob = model.template log_prob<false, Jacobian>(unconstrained,
                                                           disc_vector, &msg);
       if (msg.str().length() > 0)
@@ -164,6 +167,7 @@ std::vector<double> initialize(Model& model, const InitContext& init, RNG& rng,
     try {
       // we evaluate this with propto=true since we're
       // evaluating with autodiff variables
+      std::cout << " * log_prob_grad() evaluation" << "\n";
       log_prob = stan::model::log_prob_grad<true, Jacobian>(
           model, unconstrained, disc_vector, gradient, &log_prob_msg);
     } catch (const std::exception& e) {
@@ -209,6 +213,7 @@ std::vector<double> initialize(Model& model, const InitContext& init, RNG& rng,
     }
     if (gradient_ok) {
       init_writer(unconstrained);
+      std::cout << " * initialize() successfull." << "\n";
       return unconstrained;
     }
   }
