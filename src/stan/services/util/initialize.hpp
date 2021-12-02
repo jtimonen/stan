@@ -12,7 +12,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <stan/services/util/understanding_stan.hpp>
+#include <stan/understanding_stan.hpp>
 
 
 namespace stan {
@@ -105,7 +105,7 @@ std::vector<double> initialize(Model& model, const InitContext& init, RNG& rng,
         model.transform_inits(context, disc_vector, unconstrained, &msg);
       }
       std::cout << " * init try " << num_init_tries << ", x = ";
-      stan::services::util::print_vector(unconstrained);
+      stan::print_vector(unconstrained);
       std::cout << "\n";
     } catch (std::domain_error& e) {
       if (msg.str().length() > 0)
@@ -134,7 +134,7 @@ std::vector<double> initialize(Model& model, const InitContext& init, RNG& rng,
       // the parameters.
       log_prob = model.template log_prob<false, Jacobian>(unconstrained,
                                                           disc_vector, &msg);
-      stan::services::util::print_log_prob_eval(unconstrained, log_prob);
+      stan::print_log_prob_eval(unconstrained, log_prob);
       if (msg.str().length() > 0)
         logger.info(msg);
     } catch (std::domain_error& e) {
@@ -173,7 +173,7 @@ std::vector<double> initialize(Model& model, const InitContext& init, RNG& rng,
       // evaluating with autodiff variables
       log_prob = stan::model::log_prob_grad<true, Jacobian>(
           model, unconstrained, disc_vector, gradient, &log_prob_msg);
-      stan::services::util::print_log_prob_grad_eval(unconstrained, gradient, log_prob);
+      stan::print_log_prob_grad_eval(unconstrained, gradient, log_prob);
     } catch (const std::exception& e) {
       if (log_prob_msg.str().length() > 0)
         logger.info(log_prob_msg);

@@ -1,12 +1,12 @@
-#ifndef STAN_SERVICES_UTIL_UNDERSTANDING_STAN
-#define STAN_SERVICES_UTIL_UNDERSTANDING_STAN
+#ifndef STAN_UNDERSTANDING_STAN
+#define STAN_UNDERSTANDING_STAN
 
 #include <iostream>
 #include <vector>
+#include <Eigen/Dense>
+#include <stan/mcmc/sample.hpp>
 
 namespace stan {
-namespace services {
-namespace util {
 
 /**
  * Print a double vector to std::cout.
@@ -22,6 +22,22 @@ void print_vector(std::vector<double> vec) {
   }
   std::cout << vec[L-1] << "]";
 }
+
+/**
+ * Print an Eigen::VectorXd vector to std::cout.
+ *
+ * @param[in] vec the vector to print
+ * @return nothing
+ */
+void print_vector(Eigen::VectorXd vec) {
+  std::cout << "[";
+  const int L = vec.size();
+  for (int i = 0; i < L - 1; ++i) { 
+    std::cout << vec[i] << ", ";
+  }
+  std::cout << vec[L-1] << "]";
+}
+
 
 /**
  * Print a log_prob evaluation to std::cout.
@@ -53,7 +69,20 @@ void print_log_prob_grad_eval(std::vector<double> x, std::vector<double> grad, d
 }
 
 
-}  // namespace util
-}  // namespace services
+/**
+ * Print a transition std::cout.
+ *
+ * @param[in] s_init sample where transition starts
+ * @param[in] s sample where transition ends
+ * @return nothing
+ */
+void print_transition(stan::mcmc::sample& s_init, stan::mcmc::sample& s) {
+  std::cout << " * transition from ";
+  stan::print_vector(s_init.cont_params());
+  std::cout << " to ";
+  stan::print_vector(s.cont_params());
+  std::cout << "\n";
+}
+
 }  // namespace stan
 #endif

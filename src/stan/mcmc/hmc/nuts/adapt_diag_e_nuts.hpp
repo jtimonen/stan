@@ -4,6 +4,7 @@
 #include <stan/callbacks/logger.hpp>
 #include <stan/mcmc/stepsize_var_adapter.hpp>
 #include <stan/mcmc/hmc/nuts/diag_e_nuts.hpp>
+#include <stan/understanding_stan.hpp>
 
 namespace stan {
 namespace mcmc {
@@ -23,7 +24,9 @@ class adapt_diag_e_nuts : public diag_e_nuts<Model, BaseRNG>,
   ~adapt_diag_e_nuts() {}
 
   sample transition(sample& init_sample, callbacks::logger& logger) {
+    
     sample s = diag_e_nuts<Model, BaseRNG>::transition(init_sample, logger);
+    stan::print_transition(init_sample, s);
 
     if (this->adapt_flag_) {
       this->stepsize_adaptation_.learn_stepsize(this->nom_epsilon_,

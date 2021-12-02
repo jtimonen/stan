@@ -102,9 +102,10 @@ class base_hmc : public base_mcmc {
 
     double delta_H = H0 - h;
     int direction = delta_H > std::log(0.8) ? 1 : -1;
+    int while_idx = 0;
 
-    //std::cout << "STAN(run_adaptive_sampler.hpp): starting while loop inside init_stepsize()." << "\n";
     while (1) {
+      while_idx++;
       this->z_.ps_point::operator=(z_init);
 
       this->hamiltonian_.sample_p(this->z_, this->rand_int_);
@@ -121,14 +122,16 @@ class base_hmc : public base_mcmc {
       double delta_H = H0 - h;
 
 
-      if ((direction == 1) && !(delta_H > std::log(0.8)))
+      if ((direction == 1) && !(delta_H > std::log(0.8))) {
+        std::cout << " * number of times init_stepsize() while loop ran = " << while_idx << "\n";
         break;
-      else if ((direction == -1) && !(delta_H < std::log(0.8)))
+      } else if ((direction == -1) && !(delta_H < std::log(0.8))) {
+        std::cout << " * number of times init_stepsize() while loop ran = " << while_idx << "\n";
         break;
-      else
+      } else {
         this->nom_epsilon_ = direction == 1 ? 2.0 * this->nom_epsilon_
                                             : 0.5 * this->nom_epsilon_;
-
+      }
       if (this->nom_epsilon_ > 1e7)
         throw std::runtime_error(
             "Posterior is improper. "
