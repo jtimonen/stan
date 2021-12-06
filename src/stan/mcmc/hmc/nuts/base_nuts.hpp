@@ -10,6 +10,7 @@
 #include <limits>
 #include <string>
 #include <vector>
+#include <stan/understanding_stan.hpp>
 
 namespace stan {
 namespace mcmc {
@@ -112,6 +113,7 @@ class base_nuts : public base_hmc<Model, Hamiltonian, Integrator, BaseRNG> {
     // Log sum of state weights (offset by H0) along trajectory
     double log_sum_weight = 0;  // log(exp(H0 - H0))
     double H0 = this->hamiltonian_.H(this->z_);
+
     int n_leapfrog = 0;
     double sum_metro_prob = 0;
 
@@ -120,7 +122,12 @@ class base_nuts : public base_hmc<Model, Hamiltonian, Integrator, BaseRNG> {
     this->depth_ = 0;
     this->divergent_ = false;
 
+    std::cout << "STAN(base_nuts.hpp): NUTS transition" << "\n";
+
     while (this->depth_ < this->max_depth_) {
+      std::cout << " * " << this->depth_ << ", q = ";
+      stan::print_vector(this->z().q);
+
       // Build a new subtree in a random direction
       Eigen::VectorXd rho_fwd = Eigen::VectorXd::Zero(rho.size());
       Eigen::VectorXd rho_bck = Eigen::VectorXd::Zero(rho.size());
@@ -129,6 +136,7 @@ class base_nuts : public base_hmc<Model, Hamiltonian, Integrator, BaseRNG> {
       double log_sum_weight_subtree = -std::numeric_limits<double>::infinity();
 
       if (this->rand_uniform_() > 0.5) {
+        std::cout << ", forward";
         // Extend the current trajectory forward
         this->z_.ps_point::operator=(z_fwd);
         rho_bck = rho;
@@ -141,6 +149,7 @@ class base_nuts : public base_hmc<Model, Hamiltonian, Integrator, BaseRNG> {
             sum_metro_prob, logger);
         z_fwd.ps_point::operator=(this->z_);
       } else {
+        std::cout << ", backwards";
         // Extend the current trajectory backwards
         this->z_.ps_point::operator=(z_bck);
         rho_fwd = rho;
@@ -153,9 +162,13 @@ class base_nuts : public base_hmc<Model, Hamiltonian, Integrator, BaseRNG> {
             sum_metro_prob, logger);
         z_bck.ps_point::operator=(this->z_);
       }
+      std::cout << ", q = ";
+      stan::print_vector(this->z().q);
 
-      if (!valid_subtree)
+      if (!valid_subtree) {
+        std::cout << ", subtree not valid!\n"; // break option 1
         break;
+      }
 
       // Sample from accepted subtree
       ++(this->depth_);
@@ -188,8 +201,15 @@ class base_nuts : public base_hmc<Model, Hamiltonian, Integrator, BaseRNG> {
       persist_criterion
           &= compute_criterion(p_sharp_bck_fwd, p_sharp_fwd_fwd, rho_extended);
 
-      if (!persist_criterion)
+      std::cout << ", q = ";
+      stan::print_vector(this->z().q);
+
+      if (!persist_criterion) {
+        std::cout << ", persist_criterion not satisfied!\n"; // break option 2
         break;
+      }
+
+      std::cout << "\n"; // continue looping
     }
 
     this->n_leapfrog_ = n_leapfrog;
@@ -197,6 +217,7 @@ class base_nuts : public base_hmc<Model, Hamiltonian, Integrator, BaseRNG> {
     // Compute average acceptance probabilty across entire trajectory,
     // even over subtrees that may have been rejected
     double accept_prob = sum_metro_prob / static_cast<double>(n_leapfrog);
+    std::cout << " * average_accept_prob = " << accept_prob << "\n";
 
     this->z_.ps_point::operator=(z_sample);
     this->energy_ = this->hamiltonian_.H(this->z_);
