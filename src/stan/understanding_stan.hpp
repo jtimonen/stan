@@ -2,6 +2,7 @@
 #define STAN_UNDERSTANDING_STAN
 
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <Eigen/Dense>
 #include <stan/mcmc/sample.hpp>
@@ -18,7 +19,7 @@ void print_vector(std::vector<double> vec) {
   std::cout << "[";
   const int L = vec.size();
   for (int i = 0; i < L - 1; ++i) { 
-    std::cout << vec[i] << ", ";
+    std::cout << std::setw(3) << std::fixed << vec[i] << ", ";
   }
   std::cout << vec[L-1] << "]";
 }
@@ -33,7 +34,7 @@ void print_vector(Eigen::VectorXd vec) {
   std::cout << "[";
   const int L = vec.size();
   for (int i = 0; i < L - 1; ++i) { 
-    std::cout << vec[i] << ", ";
+    std::cout << std::setw(3) << std::fixed << vec[i] << ", ";
   }
   std::cout << vec[L-1] << "]";
 }

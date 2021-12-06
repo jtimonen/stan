@@ -201,11 +201,8 @@ class base_nuts : public base_hmc<Model, Hamiltonian, Integrator, BaseRNG> {
       persist_criterion
           &= compute_criterion(p_sharp_bck_fwd, p_sharp_fwd_fwd, rho_extended);
 
-      std::cout << ", q = ";
-      stan::print_vector(this->z().q);
-
       if (!persist_criterion) {
-        std::cout << ", persist_criterion not satisfied!\n"; // break option 2
+        std::cout << ", persist_criterion=false!\n"; // break option 2
         break;
       }
 
