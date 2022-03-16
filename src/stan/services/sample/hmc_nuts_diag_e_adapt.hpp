@@ -70,6 +70,7 @@ int hmc_nuts_diag_e_adapt(
     callbacks::logger& logger, callbacks::writer& init_writer,
     callbacks::writer& sample_writer, callbacks::writer& diagnostic_writer) {
   boost::ecuyer1988 rng = util::create_rng(random_seed, chain);
+  std::cout << "----- RUNNING hmc_nuts_diag_e_adapt! -----" << std::endl;
 
   std::vector<double> cont_vector = util::initialize(
       model, init, rng, init_radius, true, logger, init_writer);

@@ -50,6 +50,7 @@ void run_adaptive_sampler(Sampler& sampler, Model& model,
                           size_t chain_id = 1, size_t num_chains = 1) {
   Eigen::Map<Eigen::VectorXd> cont_params(cont_vector.data(),
                                           cont_vector.size());
+  std::cout << "----- RUNNING ADAPTIVE SAMPLER! -----" << std::endl;
 
   sampler.engage_adaptation();
   try {
